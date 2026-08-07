@@ -28,9 +28,17 @@ export default function AuthPage() {
       router.push('/dashboard')
       router.refresh()
     } else {
+      const redirectUrl = typeof window !== 'undefined' && !window.location.origin.includes('localhost')
+        ? `${window.location.origin}/dashboard`
+        : 'https://expense-tracker-phi-indol-24.vercel.app/dashboard'
+
       const { error } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { full_name: fullName } }
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+          emailRedirectTo: redirectUrl,
+        },
       })
       if (error) { setError(error.message); setLoading(false); return }
       setMessage('Check your email for a confirmation link!')
