@@ -1,0 +1,17 @@
+{
+  "name": "expensetracker-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "web",
+    "mobile"
+  ],
+  "scripts": {
+    "build": "cd web && npm run build",
+    "dev": "cd web && npm run dev",
+    "start": "cd web && npm start"
+  },
+  "dependencies": {
+    "next": "^16.2.12"
+  }
+}
