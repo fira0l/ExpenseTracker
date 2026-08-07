@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "mobile",
+    "slug": "mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.spendwise.app",
+      "permissions": [
+        "READ_SMS",
+        "RECEIVE_SMS"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#080A09",
+        "foregroundImage": "./assets/icon.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9b050e89-972f-4956-97ee-3157cf9f9259"
+      }
+    }
+  }
+}
