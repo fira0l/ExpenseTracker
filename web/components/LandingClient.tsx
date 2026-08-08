@@ -251,7 +251,7 @@ export default function LandingClient({ user }: { user: User | null }) {
                     borderRadius: 16,
                     padding: 16,
                     display: 'flex',
-                    justify: 'space-between',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                   }}
                 >
