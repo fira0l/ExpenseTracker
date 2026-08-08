@@ -1,8 +1,23 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform, useSpring, AnimatePresence, useMotionValue, useInView } from 'framer-motion'
-import { ArrowRight, Zap, TrendingUp, ShieldCheck, Smartphone, Sparkles, ChevronRight, BarChart3, Bell } from 'lucide-react'
+import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import {
+  ArrowRight,
+  Zap,
+  TrendingUp,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  BarChart3,
+  CreditCard,
+  Camera,
+  Layers,
+  Calculator,
+  CheckCircle2,
+  DollarSign,
+  Lock,
+} from 'lucide-react'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 
@@ -19,47 +34,45 @@ function Counter({ target, suffix = '' }: { target: number; suffix?: string }) {
     const step = Math.ceil(target / (dur / 16))
     const timer = setInterval(() => {
       start += step
-      if (start >= target) { setDisplay(target); clearInterval(timer) }
-      else setDisplay(start)
+      if (start >= target) {
+        setDisplay(target)
+        clearInterval(timer)
+      } else setDisplay(start)
     }, 16)
     return () => clearInterval(timer)
   }, [inView, target])
 
-  return <span ref={ref}>{display.toLocaleString()}{suffix}</span>
+  return (
+    <span ref={ref}>
+      {display.toLocaleString()}
+      {suffix}
+    </span>
+  )
 }
 
-/* ---- Fade Up variant ---- */
 const fadeUp = (delay = 0) => ({
-  initial:  { opacity: 0, y: 32 },
-  animate:  { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 32 },
+  animate: { opacity: 1, y: 0 },
   transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
 })
 
-/* ---- Stagger container ---- */
-const staggerContainer = {
-  animate: { transition: { staggerChildren: 0.08 } }
-}
-
-const staggerChild = {
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } },
-}
-
-/* ---- Bento card hover effect ---- */
-function BentoCard({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const cardRef = useRef<HTMLDivElement>(null)
-  const [hovered, setHovered] = useState(false)
-
+/* ---- Bento Card Component ---- */
+function BentoCard({
+  children,
+  className = '',
+  delay = 0,
+}: {
+  children: React.ReactNode
+  className?: string
+  delay?: number
+}) {
   return (
     <motion.div
-      ref={cardRef}
       className={`lp-bento-card ${className}`}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
       whileHover={{ y: -4 }}
     >
       {children}
@@ -67,37 +80,47 @@ function BentoCard({ children, className = '', delay = 0 }: { children: React.Re
   )
 }
 
-/* ---- Main Component ---- */
 export default function LandingClient({ user }: { user: User | null }) {
   const { scrollYProgress } = useScroll()
-  const previewY = useTransform(scrollYProgress, [0, 0.3], [0, -60])
-  const previewOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.6])
+  const previewY = useTransform(scrollYProgress, [0, 0.3], [0, -40])
+  const previewOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0.8])
 
-  const smsMsgs = [
-    { sender: 'CBE', msg: 'Your account has been debited ETB 1,450.00 at Edna Mall on 04/08/26.', parsed: 'ETB 1,450.00 · Grocery' },
-    { sender: 'Awash', msg: 'Purchase of ETB 350.00 at Kaldi\'s Coffee. Balance: ETB 12,340.', parsed: 'ETB 350.00 · Coffee' },
-    { sender: 'CBE', msg: 'You received ETB 25,000.00 salary from COMPANY Ltd.', parsed: 'ETB 25,000.00 · Income' },
+  // Interactive SMS Parser Simulator
+  const [activeSmsIndex, setActiveSmsIndex] = useState(0)
+  const smsSamples = [
+    {
+      bank: 'CBE Bank',
+      msg: 'Your account 1000***4521 has been debited ETB 1,850.00 at Supermarket Mall on 08/02/26.',
+      merchant: 'Supermarket Mall',
+      amount: 'ETB 1,850.00',
+      category: 'Groceries',
+      color: '#D9FF5B',
+    },
+    {
+      bank: 'Awash Bank',
+      msg: 'Purchase of ETB 450.00 at Kaldi Coffee. Available Balance: ETB 18,240.00.',
+      merchant: 'Kaldi Coffee',
+      amount: 'ETB 450.00',
+      category: 'Food & Dining',
+      color: '#06b6d4',
+    },
+    {
+      bank: 'Telebirr',
+      msg: 'You paid ETB 800.00 to Ride Transport for trip ID #8841.',
+      merchant: 'Ride Transport',
+      amount: 'ETB 800.00',
+      category: 'Transportation',
+      color: '#a78bfa',
+    },
   ]
 
-  const transactions = [
-    { icon: '🛒', name: 'Edna Mall', date: 'Today, 2:30 PM', amount: '-ETB 1,450', type: 'expense', sms: true },
-    { icon: '☕', name: "Kaldi's Coffee", date: 'Today, 9:15 AM', amount: '-ETB 350', type: 'expense', sms: true },
-    { icon: '💰', name: 'Salary Deposit', date: 'Aug 1, 2026', amount: '+ETB 25,000', type: 'income', sms: false },
-  ]
-
-  const chartBars = [
-    { h: 40, color: 'rgba(217,255,91,0.4)' },
-    { h: 65, color: 'rgba(217,255,91,0.5)' },
-    { h: 45, color: 'rgba(217,255,91,0.4)' },
-    { h: 80, color: 'rgba(217,255,91,0.7)' },
-    { h: 55, color: 'rgba(217,255,91,0.5)' },
-    { h: 100, color: '#D9FF5B' },
-    { h: 70, color: 'rgba(217,255,91,0.6)' },
-  ]
+  // Interactive Wealth Calculator State
+  const [monthlySave, setMonthlySave] = useState(500)
+  const estimatedYearlyWealth = monthlySave * 12 * 1.08 // 8% return
 
   return (
     <div className="lp">
-      {/* Background Effects */}
+      {/* Background Glows & Grid */}
       <div className="lp-orb lp-orb-1" />
       <div className="lp-orb lp-orb-2" />
       <div className="lp-orb lp-orb-3" />
@@ -123,9 +146,11 @@ export default function LandingClient({ user }: { user: User | null }) {
               </Link>
             ) : (
               <>
-                <Link href="/auth" className="lp-nav-link">Sign In</Link>
+                <Link href="/auth" className="lp-nav-link">
+                  Sign In
+                </Link>
                 <Link href="/auth" className="lp-nav-cta">
-                  Get Started <ArrowRight size={14} />
+                  Get Started Free <ArrowRight size={14} />
                 </Link>
               </>
             )}
@@ -137,47 +162,51 @@ export default function LandingClient({ user }: { user: User | null }) {
       <section className="lp-hero">
         <motion.div className="lp-badge" {...fadeUp(0.1)}>
           <span className="lp-badge-dot" />
-          AI-Powered Expense Tracking
+          Autonomous AI & SMS Expense Management
         </motion.div>
 
         <motion.h1 className="lp-headline" {...fadeUp(0.2)}>
-          <span className="lp-headline-accent">Track every penny.</span><br />
-          Without lifting a finger.
+          Master your money.<br />
+          <span className="lp-headline-accent">Without friction.</span>
         </motion.h1>
 
         <motion.p className="lp-subheadline" {...fadeUp(0.3)}>
-          SpendWise automatically parses your bank SMS notifications, categorizes expenses, and turns raw data into beautiful financial insights.
+          SpendWise automatically parses bank SMS notifications, scans paper receipts, tracks investments & debts, and gives you a personal RAG AI Financial Coach.
         </motion.p>
 
         <motion.div className="lp-hero-actions" {...fadeUp(0.4)}>
           <Link href={user ? '/dashboard' : '/auth'} className="lp-btn-primary">
-            {user ? 'Launch Dashboard' : 'Start Tracking Free'}
+            {user ? 'Launch Dashboard' : 'Start Free Account'}
             <ArrowRight size={17} />
           </Link>
-          <Link href="#features" className="lp-btn-secondary">
-            See how it works
-          </Link>
+          <a href="#features" className="lp-btn-secondary">
+            Explore Features
+          </a>
         </motion.div>
 
         <motion.div className="lp-hero-stats" {...fadeUp(0.55)}>
           <div className="lp-hero-stat">
-            <div className="lp-hero-stat-value"><Counter target={12400} suffix="+" /></div>
-            <div className="lp-hero-stat-label">Expenses Tracked</div>
+            <div className="lp-hero-stat-value">
+              <Counter target={18400} suffix="+" />
+            </div>
+            <div className="lp-hero-stat-label">Transactions Parsed</div>
           </div>
           <div className="lp-hero-stat-divider" />
           <div className="lp-hero-stat">
-            <div className="lp-hero-stat-value"><Counter target={98} suffix="%" /></div>
-            <div className="lp-hero-stat-label">Parse Accuracy</div>
+            <div className="lp-hero-stat-value">
+              <Counter target={99} suffix="%" />
+            </div>
+            <div className="lp-hero-stat-label">OCR & SMS Accuracy</div>
           </div>
           <div className="lp-hero-stat-divider" />
           <div className="lp-hero-stat">
-            <div className="lp-hero-stat-value"><Counter target={3} suffix="s" /></div>
-            <div className="lp-hero-stat-label">Avg Parse Time</div>
+            <div className="lp-hero-stat-value">100%</div>
+            <div className="lp-hero-stat-label">Free & Private</div>
           </div>
         </motion.div>
       </section>
 
-      {/* ── DASHBOARD PREVIEW ── */}
+      {/* ── DASHBOARD SHOWCASE PREVIEW ── */}
       <motion.div
         className="lp-preview-wrapper"
         style={{ y: previewY, opacity: previewOpacity }}
@@ -188,25 +217,24 @@ export default function LandingClient({ user }: { user: User | null }) {
         <div className="lp-preview-glow" />
         <div className="lp-preview-frame">
           <div className="lp-preview-inner">
-            {/* Browser chrome */}
+            {/* Top Bar */}
             <div className="lp-preview-topbar">
               <div className="lp-preview-dot" style={{ background: '#ff5f57' }} />
               <div className="lp-preview-dot" style={{ background: '#febc2e' }} />
               <div className="lp-preview-dot" style={{ background: '#28c840' }} />
               <div className="lp-preview-url">
-                <span className="lp-preview-url-text">app.spendwise.io/dashboard</span>
+                <span className="lp-preview-url-text">https://expense-tracker-phi-indol-24.vercel.app/dashboard</span>
               </div>
             </div>
 
-            {/* App body */}
+            {/* Dashboard Content Mock */}
             <div className="lp-preview-body">
-              {/* Sidebar */}
               <div className="lp-preview-sidebar">
                 <div className="lp-preview-sidebar-logo">
                   <img src="/favicon-32x32.png" alt="logo" className="lp-preview-logo-img" />
                   <span className="lp-preview-logo-name">SpendWise</span>
                 </div>
-                {['Dashboard', 'Transactions', 'Budgets', 'Analytics'].map((item, i) => (
+                {['Dashboard', 'AI Advisor', 'Transactions', 'Budgets', 'Goals', 'Portfolio'].map((item, i) => (
                   <div key={item} className={`lp-preview-nav-item ${i === 0 ? 'active' : ''}`}>
                     <div className={`lp-preview-nav-dot ${i === 0 ? 'active' : ''}`} />
                     {item}
@@ -214,69 +242,47 @@ export default function LandingClient({ user }: { user: User | null }) {
                 ))}
               </div>
 
-              {/* Content */}
               <div className="lp-preview-content">
-                <div className="lp-preview-header">
-                  <div className="lp-preview-title">Good morning 👋</div>
-                  <div className="lp-preview-cta-pill">+ Add</div>
-                </div>
-
-                {/* Stats */}
-                <div className="lp-preview-stats">
-                  <div className="lp-preview-stat">
-                    <div className="lp-preview-stat-label">Balance</div>
-                    <div className="lp-preview-stat-value green">ETB 18,200</div>
+                {/* Hero Metallic Credit Card Mock */}
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, #090d16 0%, #1e293b 50%, #0f172a 100%)',
+                    border: '1px solid rgba(217, 255, 91, 0.35)',
+                    borderRadius: 16,
+                    padding: 16,
+                    display: 'flex',
+                    justify: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>AVAILABLE CHECKING BALANCE</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#D9FF5B', marginTop: 2 }}>$14,850.00</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4, fontFamily: 'monospace' }}>•••• •••• •••• 8842</div>
                   </div>
-                  <div className="lp-preview-stat">
-                    <div className="lp-preview-stat-label">Expenses</div>
-                    <div className="lp-preview-stat-value red">ETB 6,800</div>
-                  </div>
-                  <div className="lp-preview-stat">
-                    <div className="lp-preview-stat-label">Budget Used</div>
-                    <div className="lp-preview-stat-value brand">34%</div>
-                  </div>
-                </div>
-
-                {/* Chart */}
-                <div className="lp-preview-chart">
-                  <div className="lp-preview-chart-label">Monthly Spending</div>
-                  <div className="lp-preview-chart-bars">
-                    {chartBars.map((bar, i) => (
-                      <motion.div
-                        key={i}
-                        className="lp-preview-bar"
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 0.8 + i * 0.06, duration: 0.5, ease: 'easeOut' }}
-                        style={{ background: bar.color, height: `${bar.h}%`, transformOrigin: 'bottom' }}
-                      />
-                    ))}
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#D9FF5B', letterSpacing: 1 }}>SPENDWISE PLATINUM</span>
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 8 }}>EXPIRES 12/28</div>
                   </div>
                 </div>
 
-                {/* Transactions */}
-                <div className="lp-preview-transactions">
-                  {transactions.map((tx, i) => (
-                    <motion.div
-                      key={i}
-                      className="lp-preview-tx"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1.0 + i * 0.1, duration: 0.4 }}
-                    >
-                      <div className="lp-preview-tx-icon" style={{ background: tx.type === 'expense' ? 'rgba(244,63,94,0.12)' : 'rgba(16,185,129,0.12)' }}>
-                        {tx.icon}
-                      </div>
-                      <div className="lp-preview-tx-info">
-                        <div className="lp-preview-tx-name">{tx.name}</div>
-                        <div className="lp-preview-tx-date">
-                          {tx.date}
-                          {tx.sms && <span className="lp-preview-tx-badge" style={{ marginLeft: 6 }}>SMS</span>}
-                        </div>
-                      </div>
-                      <div className={`lp-preview-tx-amount ${tx.type}`}>{tx.amount}</div>
-                    </motion.div>
-                  ))}
+                {/* AI Coach Banner */}
+                <div
+                  style={{
+                    background: 'rgba(217,255,91,0.08)',
+                    border: '1px solid rgba(217,255,91,0.2)',
+                    borderRadius: 12,
+                    padding: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                  }}
+                >
+                  <Sparkles size={20} color="#D9FF5B" />
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>AI Financial Coach Active</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>"You saved $320 more than last month. Want to deposit into Vacation Goal?"</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -284,211 +290,152 @@ export default function LandingClient({ user }: { user: User | null }) {
         </div>
       </motion.div>
 
-      {/* ── FEATURES BENTO ── */}
-      <section className="lp-section" id="features">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="lp-section-eyebrow">Features</div>
-          <h2 className="lp-section-title">Everything you need. <span style={{ color: 'var(--text-lo)' }}>Nothing you don't.</span></h2>
-          <p className="lp-section-subtitle">Designed for speed, clarity, and total control over your finances — from mobile to web.</p>
-        </motion.div>
+      {/* ── INTERACTIVE DEMO: SMS PARSER SIMULATOR ── */}
+      <section className="lp-section" id="sms-demo">
+        <div className="lp-section-eyebrow">Interactive Demo</div>
+        <h2 className="lp-section-title">See SMS Auto-Parsing in Action</h2>
+        <p className="lp-section-subtitle">Select a bank notification below to test how SpendWise instantly categorizes raw messages into structured ledger items.</p>
 
-        <div className="lp-bento">
+        <div className="lp-sms-sim-container">
+          <div className="lp-sms-tabs">
+            {smsSamples.map((sample, idx) => (
+              <button
+                key={sample.bank}
+                onClick={() => setActiveSmsIndex(idx)}
+                className={`lp-sms-tab-btn ${activeSmsIndex === idx ? 'active' : ''}`}
+              >
+                {sample.bank}
+              </button>
+            ))}
+          </div>
 
-          {/* Card 1 — SMS Parsing (large) */}
-          <BentoCard className="lp-bento-c1" delay={0}>
-            <div className="lp-bento-glow" style={{ top: -40, right: -40, width: 220, height: 220, background: 'rgba(217,255,91,0.08)' }} />
-            <div className="lp-bento-tag"><Zap size={12} /> Core Feature</div>
-            <div className="lp-bento-icon"><Zap size={22} /></div>
-            <div className="lp-bento-title">Magic SMS Auto-Parsing</div>
-            <div className="lp-bento-desc">
-              Your bank sends an SMS. SpendWise reads it instantly — extracting merchant, amount, and category using advanced pattern matching. No manual entry ever.
+          <div className="lp-sms-sim-card">
+            <div className="lp-sms-raw-box">
+              <span className="lp-sms-tag">INCOMING SMS</span>
+              <p className="lp-sms-msg-text">"{smsSamples[activeSmsIndex].msg}"</p>
             </div>
 
-            {/* Animated SMS ticker */}
-            <div className="lp-sms-ticker">
-              {smsMsgs.map((sms, i) => (
-                <motion.div
-                  key={i}
-                  className="lp-sms-item"
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15, duration: 0.5 }}
-                >
-                  <span className="lp-sms-label">SMS</span>
-                  <span style={{ flex: 1 }}>{sms.msg}</span>
-                  <motion.span
-                    style={{ color: '#D9FF5B', fontWeight: 700, fontSize: 11, whiteSpace: 'nowrap' }}
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.15 + 0.4 }}
-                  >
-                    → {sms.parsed}
-                  </motion.span>
-                </motion.div>
-              ))}
-            </div>
-          </BentoCard>
+            <div className="lp-sms-arrow">➔</div>
 
-          {/* Card 2 — Mobile App */}
-          <BentoCard className="lp-bento-c2" delay={0.1}>
-            <div className="lp-bento-glow" style={{ bottom: -40, left: -20, width: 180, height: 180, background: 'rgba(139,92,246,0.08)' }} />
-            <div className="lp-bento-icon violet"><Smartphone size={22} /></div>
-            <div className="lp-bento-title">Native Mobile App</div>
-            <div className="lp-bento-desc">
-              Expo React Native app that syncs real-time with your web dashboard. Background SMS listener and push notifications included.
+            <div className="lp-sms-parsed-box" style={{ borderColor: smsSamples[activeSmsIndex].color }}>
+              <span className="lp-sms-tag-success">INSTANTLY PARSED</span>
+              <div className="lp-sms-parsed-details">
+                <div>
+                  <span className="lp-sms-detail-label">Merchant</span>
+                  <span className="lp-sms-detail-val">{smsSamples[activeSmsIndex].merchant}</span>
+                </div>
+                <div>
+                  <span className="lp-sms-detail-label">Amount</span>
+                  <span className="lp-sms-detail-val" style={{ color: smsSamples[activeSmsIndex].color }}>
+                    {smsSamples[activeSmsIndex].amount}
+                  </span>
+                </div>
+                <div>
+                  <span className="lp-sms-detail-label">Category</span>
+                  <span className="lp-sms-detail-val">{smsSamples[activeSmsIndex].category}</span>
+                </div>
+              </div>
             </div>
-            <div style={{ marginTop: 20, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {['Android', 'iOS', 'Real-time sync', 'Push notifications'].map(tag => (
-                <span key={tag} style={{ padding: '4px 10px', borderRadius: 100, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', fontSize: 11, color: '#a78bfa', fontWeight: 600 }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </BentoCard>
-
-          {/* Card 3 — Analytics */}
-          <BentoCard className="lp-bento-c3" delay={0.15}>
-            <div className="lp-bento-glow" style={{ top: -20, right: -20, width: 140, height: 140, background: 'rgba(6,182,212,0.08)' }} />
-            <div className="lp-bento-icon cyan"><BarChart3 size={22} /></div>
-            <div className="lp-bento-title">Stunning Analytics</div>
-            <div className="lp-bento-desc">
-              Beautiful Recharts visualizations that turn your raw data into actionable insights — category breakdowns, trends, and more.
-            </div>
-          </BentoCard>
-
-          {/* Card 4 — Smart Budgets */}
-          <BentoCard className="lp-bento-c4" delay={0.2}>
-            <div className="lp-bento-glow" style={{ bottom: -30, right: -30, width: 150, height: 150, background: 'rgba(245,158,11,0.08)' }} />
-            <div className="lp-bento-icon amber"><TrendingUp size={22} /></div>
-            <div className="lp-bento-title">Smart Budgets</div>
-            <div className="lp-bento-desc">
-              Set category budgets and get real-time progress bars. Notifications fire when you're approaching your limits.
-            </div>
-          </BentoCard>
-
-          {/* Card 5 — Security */}
-          <BentoCard className="lp-bento-c5" delay={0.25}>
-            <div className="lp-bento-glow" style={{ top: -20, left: -20, width: 140, height: 140, background: 'rgba(16,185,129,0.06)' }} />
-            <div className="lp-bento-icon" style={{ background: 'rgba(16,185,129,0.12)', borderColor: 'rgba(16,185,129,0.2)', color: '#34d399' }}>
-              <ShieldCheck size={22} />
-            </div>
-            <div className="lp-bento-title">Bank-Level Security</div>
-            <div className="lp-bento-desc">
-              Supabase Row Level Security ensures your data is yours — always. PostgreSQL reliability, real-time sync.
-            </div>
-          </BentoCard>
-
-          {/* Card 6 — AI Financial Advisor */}
-          <BentoCard className="lp-bento-c2" delay={0.3}>
-            <div className="lp-bento-glow" style={{ top: -20, right: -20, width: 160, height: 160, background: 'rgba(217,255,91,0.08)' }} />
-            <div className="lp-bento-icon"><Sparkles size={22} /></div>
-            <div className="lp-bento-title">RAG AI Financial Advisor</div>
-            <div className="lp-bento-desc">
-              Context-aware AI coach analyzing your live database. Ask instant questions like *"Am I over budget?"* or *"How to save $200?"*.
-            </div>
-          </BentoCard>
-
-          {/* Card 7 — Receipt OCR Scanner */}
-          <BentoCard className="lp-bento-c3" delay={0.35}>
-            <div className="lp-bento-glow" style={{ bottom: -20, right: -20, width: 160, height: 160, background: 'rgba(6,182,212,0.08)' }} />
-            <div className="lp-bento-icon cyan"><Smartphone size={22} /></div>
-            <div className="lp-bento-title">OCR Receipt Scanner</div>
-            <div className="lp-bento-desc">
-              Snap a paper receipt. Vision AI extracts merchant name, date, total amount, and category instantly into your ledger.
-            </div>
-          </BentoCard>
-
+          </div>
         </div>
       </section>
 
-      {/* ── STATS ROW ── */}
-      <div className="lp-stats-row">
-        <div className="lp-stats-grid">
-          {[
-            { value: 12400, suffix: '+', label: 'Expenses Tracked', sub: 'Across all users this month' },
-            { value: 98, suffix: '%', label: 'SMS Parse Accuracy', sub: 'For Ethiopian bank formats' },
-            { value: 100, suffix: '%', label: 'Free Forever', sub: 'No hidden fees, no paywalls' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              className="lp-stat-block"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <div className="lp-stat-block-value">
-                <Counter target={stat.value} suffix={stat.suffix} />
-              </div>
-              <div className="lp-stat-block-label">{stat.label}</div>
-              <div className="lp-stat-block-sub">{stat.sub}</div>
-            </motion.div>
-          ))}
+      {/* ── BENTO FEATURES GRID ── */}
+      <section className="lp-section" id="features">
+        <div className="lp-section-eyebrow">Core Engine</div>
+        <h2 className="lp-section-title">
+          Built for speed, clarity & total control.
+        </h2>
+
+        <div className="lp-bento">
+          <BentoCard className="lp-bento-c1" delay={0}>
+            <div className="lp-bento-icon"><Zap size={22} /></div>
+            <div className="lp-bento-title">Automatic Bank SMS Engine</div>
+            <div className="lp-bento-desc">
+              Background Android & Web SMS listeners capture transaction notifications from CBE, Awash, Telebirr, Dashen, and BOA automatically.
+            </div>
+          </BentoCard>
+
+          <BentoCard className="lp-bento-c2" delay={0.1}>
+            <div className="lp-bento-icon violet"><Sparkles size={22} /></div>
+            <div className="lp-bento-title">RAG AI Financial Coach</div>
+            <div className="lp-bento-desc">
+              Queries your real live database to answer questions about budget velocity, recurring bills, and savings milestones.
+            </div>
+          </BentoCard>
+
+          <BentoCard className="lp-bento-c3" delay={0.15}>
+            <div className="lp-bento-icon cyan"><Camera size={22} /></div>
+            <div className="lp-bento-title">OCR Paper Receipt Scanner</div>
+            <div className="lp-bento-desc">
+              Snap a paper receipt photo. Multi-modal vision AI extracts merchant, amount, date, and category automatically.
+            </div>
+          </BentoCard>
+
+          <BentoCard className="lp-bento-c4" delay={0.2}>
+            <div className="lp-bento-icon amber"><CreditCard size={22} /></div>
+            <div className="lp-bento-title">Metallic Bank Card & Privacy Eye</div>
+            <div className="lp-bento-desc">
+              Ultra-sleek Debit / Platinum Credit switcher with a 1-tap Privacy Eye button that hides all amounts across the dashboard.
+            </div>
+          </BentoCard>
+
+          <BentoCard className="lp-bento-c5" delay={0.25}>
+            <div className="lp-bento-icon" style={{ background: 'rgba(16,185,129,0.12)', borderColor: 'rgba(16,185,129,0.2)', color: '#34d399' }}>
+              <ShieldCheck size={22} />
+            </div>
+            <div className="lp-bento-title">Supabase Row-Level Security</div>
+            <div className="lp-bento-desc">
+              PostgreSQL encryption with strict RLS policies ensures your financial data is strictly accessible by you alone.
+            </div>
+          </BentoCard>
         </div>
-      </div>
+      </section>
+
+      {/* ── WEALTH CALCULATOR SIMULATOR ── */}
+      <section className="lp-section" id="calculator">
+        <div className="lp-section-eyebrow">Wealth Growth</div>
+        <h2 className="lp-section-title">See your 12-month savings potential</h2>
+        <p className="lp-section-subtitle">Adjust the monthly savings slider below to project your estimated net worth growth.</p>
+
+        <div className="lp-calc-box">
+          <div className="lp-calc-slider-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff', fontWeight: 700, marginBottom: 8 }}>
+              <span>Monthly Savings Goal:</span>
+              <span style={{ color: '#D9FF5B', fontSize: 20 }}>${monthlySave}/mo</span>
+            </div>
+            <input
+              type="range"
+              min="100"
+              max="5000"
+              step="100"
+              value={monthlySave}
+              onChange={e => setMonthlySave(Number(e.target.value))}
+              className="lp-calc-slider"
+            />
+          </div>
+
+          <div className="lp-calc-result">
+            <div style={{ fontSize: 12, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1 }}>ESTIMATED 12-MONTH WEALTH ACCUMULATION</div>
+            <div style={{ fontSize: 44, fontWeight: 800, color: '#D9FF5B', marginTop: 4 }}>
+              ${Math.round(estimatedYearlyWealth).toLocaleString()}
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Based on automated budget tracking & 8% compound yield strategy.</div>
+          </div>
+        </div>
+      </section>
 
       {/* ── CTA ── */}
       <div className="lp-cta-section">
         <div className="lp-cta-inner">
-          <div className="lp-cta-glow" />
-          <motion.div
-            className="lp-cta-card"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="lp-cta-content">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="lp-badge" style={{ display: 'inline-flex', marginBottom: 24 }}>
-                  <span className="lp-badge-dot" />
-                  Ready to take control?
-                </div>
-              </motion.div>
-              <motion.h2
-                className="lp-cta-title"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-              >
-                Take control of your money today.
-              </motion.h2>
-              <motion.p
-                className="lp-cta-sub"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-              >
-                Join the future of personal finance. Completely free, endlessly powerful.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 }}
-                style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}
-              >
-                <Link href={user ? '/dashboard' : '/auth'} className="lp-btn-primary" style={{ fontSize: 16, padding: '16px 36px' }}>
-                  {user ? 'Go to Dashboard' : 'Create Free Account'}
-                  <ArrowRight size={18} />
-                </Link>
-              </motion.div>
-            </div>
-          </motion.div>
+          <div className="lp-cta-card">
+            <h2 className="lp-cta-title">Start tracking your finances today.</h2>
+            <p className="lp-cta-sub">Join SpendWise for weightless, automated expense intelligence. 100% free forever.</p>
+            <Link href={user ? '/dashboard' : '/auth'} className="lp-btn-primary" style={{ fontSize: 16, padding: '16px 36px' }}>
+              {user ? 'Go to Dashboard' : 'Create Free Account'}
+              <ArrowRight size={18} />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -499,10 +446,14 @@ export default function LandingClient({ user }: { user: User | null }) {
             <img src="/favicon-32x32.png" alt="SpendWise" style={{ width: 20, height: 20, borderRadius: 4 }} />
             <span className="lp-footer-logo-text">SpendWise</span>
           </Link>
-          <p className="lp-footer-copy">© {new Date().getFullYear()} SpendWise. Built with Next.js, Framer Motion & Supabase.</p>
+          <p className="lp-footer-copy">© {new Date().getFullYear()} SpendWise. Built with Next.js, React Native & Supabase.</p>
           <div className="lp-footer-links">
-            <Link href="/auth" className="lp-footer-link">Sign In</Link>
-            <Link href="/dashboard" className="lp-footer-link">Dashboard</Link>
+            <Link href="/auth" className="lp-footer-link">
+              Sign In
+            </Link>
+            <Link href="/dashboard" className="lp-footer-link">
+              Dashboard
+            </Link>
           </div>
         </div>
       </footer>
