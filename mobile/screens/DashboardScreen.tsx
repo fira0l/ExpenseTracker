@@ -35,12 +35,20 @@ export default function DashboardScreen({ session, navigation }: { session: Sess
 
   const fmt = useCallback(
     (n: number) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: profile?.currency ?? 'ETB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(n)
+      try {
+        const cur = profile?.currency || 'ETB'
+        if (cur === 'ETB') {
+          return `ETB ${n.toLocaleString('en-US')}`
+        }
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: cur,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(n)
+      } catch (e) {
+        return `${profile?.currency || 'ETB'} ${n}`
+      }
     },
     [profile]
   )

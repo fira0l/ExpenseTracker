@@ -65,12 +65,19 @@ export default function HistoryScreen({ session }: { session: Session }) {
   }
 
   const fmt = (n: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(n)
+    try {
+      if (currency === 'ETB') {
+        return `ETB ${n.toLocaleString('en-US')}`
+      }
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(n)
+    } catch (e) {
+      return `${currency || 'ETB'} ${n}`
+    }
   }
 
   // Filtered transactions
